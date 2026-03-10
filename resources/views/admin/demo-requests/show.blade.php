@@ -112,15 +112,118 @@
                     <p class="text-sm text-gray-600 mb-4">
                         Créer un compte Business Suite pour ce prospect avec un essai gratuit de 14 jours.
                     </p>
-                    <form action="{{ route('admin.demo-requests.provision', $demoRequest) }}" method="POST" onsubmit="return confirm('Créer un compte pour {{ $demoRequest->name }} ({{ $demoRequest->email }}) ?')">
-                        @csrf
-                        <button type="submit" class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center gap-2">
+                    <div x-data="{ showModal: false }">
+                        <button @click="showModal = true" type="button" class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
                             Créer le compte
                         </button>
-                    </form>
+
+                        <!-- Modal de confirmation -->
+                        <div x-show="showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                <!-- Overlay -->
+                                <div x-show="showModal" 
+                                     x-transition:enter="ease-out duration-300" 
+                                     x-transition:enter-start="opacity-0" 
+                                     x-transition:enter-end="opacity-100" 
+                                     x-transition:leave="ease-in duration-200" 
+                                     x-transition:leave-start="opacity-100" 
+                                     x-transition:leave-end="opacity-0" 
+                                     class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                                     @click="showModal = false"></div>
+
+                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                <!-- Modal panel -->
+                                <div x-show="showModal" 
+                                     x-transition:enter="ease-out duration-300" 
+                                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                                     x-transition:leave="ease-in duration-200" 
+                                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                                     class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                    
+                                    <div class="bg-white px-6 pt-6 pb-4">
+                                        <div class="flex items-start gap-4">
+                                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h3 class="text-lg font-semibold text-gray-900" id="modal-title">
+                                                    Créer un compte Business Suite
+                                                </h3>
+                                                <p class="mt-2 text-sm text-gray-500">
+                                                    Vous êtes sur le point de créer un compte pour ce prospect. Cette action va :
+                                                </p>
+                                                <ul class="mt-3 space-y-2 text-sm text-gray-600">
+                                                    <li class="flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        Créer un nouveau tenant dans Business Suite
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        Activer un essai gratuit de 14 jours
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        Envoyer les identifiants par email
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Informations du prospect -->
+                                        <div class="mt-5 p-4 bg-gray-50 rounded-xl">
+                                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <p class="text-gray-500">Nom</p>
+                                                    <p class="font-medium text-gray-900">{{ $demoRequest->name }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-gray-500">Email</p>
+                                                    <p class="font-medium text-gray-900">{{ $demoRequest->email }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-gray-500">Entreprise</p>
+                                                    <p class="font-medium text-gray-900">{{ $demoRequest->company }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-gray-500">Téléphone</p>
+                                                    <p class="font-medium text-gray-900">{{ $demoRequest->phone }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gray-50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                                        <button @click="showModal = false" type="button" class="w-full sm:w-auto px-5 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors">
+                                            Annuler
+                                        </button>
+                                        <form action="{{ route('admin.demo-requests.provision', $demoRequest) }}" method="POST" class="w-full sm:w-auto">
+                                            @csrf
+                                            <button type="submit" class="w-full px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center gap-2">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                                Confirmer la création
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 @endif
             </div>
 
