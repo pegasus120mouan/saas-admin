@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../nexaErp"
+		},
+		{
+			"path": "../busines-suite"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
