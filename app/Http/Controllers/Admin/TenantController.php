@@ -105,4 +105,19 @@ class TenantController extends Controller
 
         return back()->with('success', 'Tenant réactivé avec succès.');
     }
+
+    public function updateModules(Request $request, Tenant $tenant)
+    {
+        $validated = $request->validate([
+            'modules' => 'nullable|array',
+            'modules.*' => 'string|in:clients,fournisseurs,devis,factures,paiements,produits,entrepots,stocks,bons_commande,depenses,rapports,rh',
+        ]);
+
+        $settings = $tenant->settings ?? [];
+        $settings['modules'] = $validated['modules'] ?? [];
+        
+        $tenant->update(['settings' => $settings]);
+
+        return back()->with('success', 'Modules mis à jour avec succès.');
+    }
 }

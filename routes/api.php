@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\DemoRequestController;
 
 Route::prefix('v1')->group(function () {
     Route::post('/demo-requests', [DemoRequestController::class, 'store']);
+    Route::get('/demo-requests/verify/{token}', [DemoRequestController::class, 'verifyEmail']);
     
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/demo-requests', [DemoRequestController::class, 'index']);

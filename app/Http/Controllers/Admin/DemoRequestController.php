@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TenantCredentials;
 use App\Models\DemoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class DemoRequestController extends Controller
 {
@@ -82,8 +84,24 @@ class DemoRequestController extends Controller
                     'status' => 'completed',
                 ]);
 
-                return redirect()->route('admin.demo-requests.show', $demoRequest)
-                    ->with('success', 'Compte créé avec succès ! Email: ' . $data['email'] . ' | Mot de passe: ' . $data['password']);
+                // Envoyer l'email avec les credentials
+                try {
+                    Mail::to($demoRequest->email)->send(new TenantCredentials([
+                        'name' => $demoRequest->name,
+                        'company' => $demoRequest->company,
+                        'email' => $data['email'],
+                        'password' => $data['password'],
+                        'login_url' => config('services.business_suite.url') . '/login',
+                    ]));
+                    
+                    return redirect()->route('admin.demo-requests.show', $demoRequest)
+                        ->with('success', 'Compte créé avec succès ! Les identifiants ont été envoyés par email à ' . $demoRequest->email);
+                } catch (\Exception $mailException) {
+                    \Log::error('Erreur envoi email credentials: ' . $mailException->getMessage());
+                    
+                    return redirect()->route('admin.demo-requests.show', $demoRequest)
+                        ->with('warning', 'Compte créé mais erreur lors de l\'envoi de l\'email. Email: ' . $data['email'] . ' | Mot de passe: ' . $data['password']);
+                }
             }
 
             return redirect()->route('admin.demo-requests.show', $demoRequest)

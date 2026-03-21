@@ -22,11 +22,20 @@ class DemoRequestController extends Controller
         ]);
 
         $demoRequest = DemoRequest::create($validated);
+        
+        // Générer le token de vérification email
+        $verificationToken = $demoRequest->generateVerificationToken();
 
         return response()->json([
             'success' => true,
             'message' => 'Demo request created successfully',
-            'data' => $demoRequest,
+            'data' => [
+                'id' => $demoRequest->id,
+                'name' => $demoRequest->name,
+                'email' => $demoRequest->email,
+                'company' => $demoRequest->company,
+                'verification_token' => $verificationToken,
+            ],
         ], 201);
     }
 
@@ -67,6 +76,33 @@ class DemoRequestController extends Controller
             'success' => true,
             'message' => 'Demo request updated successfully',
             'data' => $demoRequest,
+        ]);
+    }
+
+    public function verifyEmail(string $token): JsonResponse
+    {
+        $demoRequest = DemoRequest::where('verification_token', $token)->first();
+
+        if (!$demoRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token de vérification invalide ou expiré.',
+            ], 404);
+        }
+
+        if ($demoRequest->isEmailVerified()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Votre adresse email a déjà été vérifiée.',
+                'already_verified' => true,
+            ]);
+        }
+
+        $demoRequest->verifyEmail();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Votre adresse email a été vérifiée avec succès ! Notre équipe vous contactera sous 24h.',
         ]);
     }
 }

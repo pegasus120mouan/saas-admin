@@ -32,6 +32,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     Route::put('tenants/{tenant}/subscription', [TenantController::class, 'updateSubscription'])->name('tenants.update-subscription');
     Route::post('tenants/{tenant}/suspend', [TenantController::class, 'suspend'])->name('tenants.suspend');
     Route::post('tenants/{tenant}/reactivate', [TenantController::class, 'reactivate'])->name('tenants.reactivate');
+    Route::put('tenants/{tenant}/modules', [TenantController::class, 'updateModules'])->name('tenants.update-modules');
     
     // Subscriptions
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
