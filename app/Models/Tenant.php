@@ -15,6 +15,9 @@ class Tenant extends Model
         'id',
         'name',
         'email',
+        'email_verification_token',
+        'email_verified_at',
+        'pending_email',
         'phone',
         'address',
         'logo',
@@ -26,7 +29,28 @@ class Tenant extends Model
 
     protected $casts = [
         'settings' => 'array',
+        'email_verified_at' => 'datetime',
     ];
+
+    public function isEmailVerified(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    public function generateEmailVerificationToken(): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $this->update(['email_verification_token' => $token]);
+        return $token;
+    }
+
+    public function verifyEmail(): void
+    {
+        $this->update([
+            'email_verified_at' => now(),
+            'email_verification_token' => null,
+        ]);
+    }
 
     public function subscription(): HasOne
     {

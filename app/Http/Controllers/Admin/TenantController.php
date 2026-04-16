@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TenantEmailVerification;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class TenantController extends Controller
 {
@@ -119,5 +121,65 @@ class TenantController extends Controller
         $tenant->update(['settings' => $settings]);
 
         return back()->with('success', 'Modules mis à jour avec succès.');
+    }
+
+    public function updateEmail(Request $request, Tenant $tenant)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|unique:tenants,email,' . $tenant->id . '|unique:tenants,pending_email,' . $tenant->id,
+        ]);
+
+        $newEmail = $validated['email'];
+
+        if ($newEmail === $tenant->email) {
+            return back()->with('info', 'L\'email est identique à l\'actuel.');
+        }
+
+        $token = bin2hex(random_bytes(32));
+        
+        $tenant->update([
+            'pending_email' => $newEmail,
+            'email_verification_token' => $token,
+            'email_verified_at' => null,
+        ]);
+
+        $verificationUrl = route('admin.tenants.verify-email', [
+            'tenant' => $tenant->id,
+            'token' => $token,
+        ]);
+
+        try {
+            Mail::to($newEmail)->send(new TenantEmailVerification($tenant, $verificationUrl));
+            
+            return back()->with('success', 'Un email de vérification a été envoyé à ' . $newEmail);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de l\'envoi de l\'email: ' . $e->getMessage());
+        }
+    }
+
+    public function verifyEmail(Tenant $tenant, string $token)
+    {
+        if ($tenant->email_verification_token !== $token) {
+            return redirect()->route('admin.tenants.show', $tenant)
+                ->with('error', 'Lien de vérification invalide.');
+        }
+
+        if (!$tenant->pending_email) {
+            return redirect()->route('admin.tenants.show', $tenant)
+                ->with('error', 'Aucun email en attente de vérification.');
+        }
+
+        $oldEmail = $tenant->email;
+        $newEmail = $tenant->pending_email;
+
+        $tenant->update([
+            'email' => $newEmail,
+            'pending_email' => null,
+            'email_verification_token' => null,
+            'email_verified_at' => now(),
+        ]);
+
+        return redirect()->route('admin.tenants.show', $tenant)
+            ->with('success', 'Email vérifié et mis à jour avec succès ! Ancien: ' . $oldEmail . ' → Nouveau: ' . $newEmail);
     }
 }

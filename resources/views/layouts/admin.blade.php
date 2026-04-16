@@ -56,11 +56,17 @@
                     Abonnements
                 </a>
 
-                <a href="{{ route('admin.demo-requests.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('admin.demo-requests.*') ? 'bg-primary-600 text-white' : 'text-gray-300 hover:bg-gray-800' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Demandes de démo
+                <a href="{{ route('admin.demo-requests.index') }}" class="flex items-center justify-between px-4 py-2.5 rounded-lg {{ request()->routeIs('admin.demo-requests.*') ? 'bg-primary-600 text-white' : 'text-gray-300 hover:bg-gray-800' }}">
+                    <span class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Demandes de démo
+                    </span>
+                    @php $demoRequestCount = \App\Models\DemoRequest::where('status', 'pending')->count(); @endphp
+                    @if($demoRequestCount > 0)
+                        <span class="px-2 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full">{{ $demoRequestCount }}</span>
+                    @endif
                 </a>
 
                 <div class="pt-4 mt-4 border-t border-gray-800">

@@ -13,7 +13,7 @@ class DemoRequestController extends Controller
 {
     public function index()
     {
-        $demoRequests = DemoRequest::latest()->paginate(20);
+        $demoRequests = DemoRequest::latest()->paginate(15);
         
         $stats = [
             'total' => DemoRequest::count(),

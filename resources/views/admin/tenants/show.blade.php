@@ -28,7 +28,29 @@
                     </div>
                     <div>
                         <dt class="text-sm text-gray-500">Email</dt>
-                        <dd class="font-medium text-gray-900">{{ $tenant->email }}</dd>
+                        <dd class="font-medium text-gray-900">
+                            <div class="flex items-center gap-2">
+                                {{ $tenant->email }}
+                                @if($tenant->email_verified_at)
+                                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" title="Email vérifié">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                @endif
+                                <button type="button" onclick="document.getElementById('emailModal').classList.remove('hidden')" class="text-primary-600 hover:text-primary-700" title="Modifier l'email">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            @if($tenant->pending_email)
+                                <div class="mt-1 text-sm text-amber-600 flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    En attente de vérification : {{ $tenant->pending_email }}
+                                </div>
+                            @endif
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-sm text-gray-500">Téléphone</dt>
@@ -231,6 +253,51 @@
         </div>
     </div>
 </div>
+<!-- Modal Email -->
+<div id="emailModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="document.getElementById('emailModal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+            <form action="{{ route('admin.tenants.update-email', $tenant) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="bg-white px-6 pt-6 pb-4">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Modifier l'email</h3>
+                            <p class="text-sm text-gray-500">Changer l'adresse email de {{ $tenant->name }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Nouvel email</label>
+                        <input type="email" name="email" id="email" value="{{ $tenant->email }}" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('emailModal').classList.add('hidden')" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Modules -->
 <div id="modulesModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
